@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+         http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <!-- Просто нет времени выписывать настоящие liquibase скрипты, ибо sql-то мне готовый нагенерил pgadmin -->
+    <changeSet id="user.1" author="slicer">
+        <sql>
+            CREATE TABLE public.User
+            (
+            id character varying (50) NOT NULL,
+            CONSTRAINT pk_user PRIMARY KEY (id)
+            );
+        </sql>
+    </changeSet>
+
+    <changeSet id="data.1" author="slicer">
+        <sql>
+            CREATE TABLE public.Data
+            (
+            userid character varying (50) NOT NULL,
+            money integer,
+            country character varying (3),
+            clob character varying(10000),
+            CONSTRAINT pk_data PRIMARY KEY (userid),
+            CONSTRAINT fk_data_user FOREIGN KEY (userid)
+            REFERENCES public.user (id) MATCH SIMPLE
+            ON UPDATE NO ACTION ON DELETE NO ACTION
+            );
+
+            CREATE INDEX idx_data_country_money ON data(country, money);
+        </sql>
+    </changeSet>
+
+    <changeSet id="activity.1" author="slicer">
+        <createTable tableName="Activity">
+            <column name="id" type="BIGINT" autoIncrement="true"/>
+            <column name="userid" type="character varying (50)"/>
+            <column name="activity" type="integer"/>
+            <column name="timestamp" type="timestamp with time zone"/>
+        </createTable>
+        <createIndex tableName="Activity" indexName="fki_activity_user">
+            <column name="userid"/>
+        </createIndex>
+        <addPrimaryKey tableName="Activity" columnNames="id"/>
+        <addForeignKeyConstraint baseTableName="Activity" baseColumnNames="userid" constraintName="fk_activity_user"
+                                 referencedTableName="user" referencedColumnNames="id"/>
+    </changeSet>
+
+</databaseChangeLog>
